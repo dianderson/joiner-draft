@@ -17,13 +17,14 @@ from typing import Any
 
 import requests
 
-from joiner_bot import secrets
+from lambdas.webhook_consumer.joiner_bot import secrets
 
 logger = logging.getLogger(__name__)
 
 _GRAPH_API_VERSION = "v22.0"
 _BASE_URL = f"https://graph.facebook.com/{_GRAPH_API_VERSION}"
-_TIMEOUT = 10  # seconds
+_TIMEOUT = 5  # seconds
+_META_PHONE_NUMBER_ID = "966357683235683"
 
 
 def _headers() -> dict[str, str]:
@@ -33,12 +34,8 @@ def _headers() -> dict[str, str]:
     }
 
 
-def _phone_number_id() -> str:
-    return secrets.get("META_PHONE_NUMBER_ID")
-
-
 def _post(payload: dict[str, Any]) -> None:
-    url = f"{_BASE_URL}/{_phone_number_id()}/messages"
+    url = f"{_BASE_URL}/{_META_PHONE_NUMBER_ID}/messages"
     response = requests.post(url, json=payload, headers=_headers(), timeout=_TIMEOUT)
     if not response.ok:
         logger.error(

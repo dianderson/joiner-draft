@@ -28,8 +28,8 @@ import boto3
 
 logger = logging.getLogger(__name__)
 
-_TABLE_NAME = os.environ.get("DYNAMODB_TABLE", "joiner-conversation-context")
-_TTL_SECONDS = 60 * 60 * 24  # 24 hours
+_TABLE_NAME = os.environ.get("DYNAMODB_TABLE", "joiner-draft-context")
+_TTL_SECONDS = 60 * 5  # 5 min
 
 _dynamodb = boto3.resource("dynamodb")
 _table = _dynamodb.Table(_TABLE_NAME)
@@ -63,7 +63,7 @@ def save(ctx: Context) -> None:
         "phone": ctx.phone,
         "step": ctx.step,
         "data": json.dumps(ctx.data),
-        "ttl": int(time.time()) + _TTL_SECONDS,
+        "expires_at": int(time.time()) + _TTL_SECONDS,
     })
     logger.info("Context saved for %s — step=%s", ctx.phone, ctx.step)
 

@@ -26,9 +26,9 @@ from typing import Any, Callable
 
 import boto3
 
-from joiner_bot import context as ctx_module
-from joiner_bot import whatsapp
-from joiner_bot.context import Context
+from lambdas.webhook_consumer.joiner_bot import whatsapp
+from lambdas.webhook_consumer.joiner_bot import context as ctx_module
+from lambdas.webhook_consumer.joiner_bot.context import Context
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 PRODUCTS = ["Prateleira", "Nicho", "Gaveta", "Armário", "Gaveteiro"]
 MATERIALS = ["MDF_15", "MDF_18", "MDF_25"]
 
-OUTPUT_SQS_URL = os.environ.get("OUTPUT_SQS_URL", "")
+OUTPUT_SQS_URL = os.environ.get("OUTPUT_SQS_URL", "prdc-draft-builder-process")
 
 _sqs = boto3.client("sqs")
 
@@ -79,14 +79,16 @@ def _handle_await_product(message: str, ctx: Context, name: str) -> Context:
 
     ctx.data["product"] = message
     ctx.step = "AWAIT_WIDTH"
-    whatsapp.send_text(ctx.phone, f"Ótima escolha! Vamos configurar seu *{message}*. 📐\n\nQual a *largura* em milímetros?")
+    whatsapp.send_text(ctx.phone,
+                       f"Ótima escolha! Vamos configurar seu *{message}*. 📐\n\nQual a *largura* em milímetros?")
     return ctx
 
 
 def _handle_await_width(message: str, ctx: Context, name: str) -> Context:
     """Validate and store width."""
     if not message.isdigit():
-        whatsapp.send_text(ctx.phone, "⚠️ Por favor, informe apenas números inteiros em milímetros.\n\nQual a *largura* em milímetros?")
+        whatsapp.send_text(ctx.phone,
+                           "⚠️ Por favor, informe apenas números inteiros em milímetros.\n\nQual a *largura* em milímetros?")
         return ctx
 
     ctx.data["width_mm"] = int(message)
@@ -98,7 +100,8 @@ def _handle_await_width(message: str, ctx: Context, name: str) -> Context:
 def _handle_await_height(message: str, ctx: Context, name: str) -> Context:
     """Validate and store height."""
     if not message.isdigit():
-        whatsapp.send_text(ctx.phone, "⚠️ Por favor, informe apenas números inteiros em milímetros.\n\nQual a *altura* em milímetros?")
+        whatsapp.send_text(ctx.phone,
+                           "⚠️ Por favor, informe apenas números inteiros em milímetros.\n\nQual a *altura* em milímetros?")
         return ctx
 
     ctx.data["height_mm"] = int(message)
@@ -110,7 +113,8 @@ def _handle_await_height(message: str, ctx: Context, name: str) -> Context:
 def _handle_await_shelves(message: str, ctx: Context, name: str) -> Context:
     """Validate and store shelf count."""
     if not message.isdigit():
-        whatsapp.send_text(ctx.phone, "⚠️ Por favor, informe apenas um número inteiro.\n\nQual a *quantidade de prateleiras*?")
+        whatsapp.send_text(ctx.phone,
+                           "⚠️ Por favor, informe apenas um número inteiro.\n\nQual a *quantidade de prateleiras*?")
         return ctx
 
     ctx.data["shelves"] = int(message)
